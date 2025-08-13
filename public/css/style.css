@@ -1,0 +1,68 @@
+:root {
+  --bg: #0f172a;      /* slate-900 */
+  --fg: #e2e8f0;      /* slate-200 */
+  --muted: #94a3b8;   /* slate-400 */
+  --card: #111827;    /* gray-900 */
+  --accent: #38bdf8;  /* sky-400 */
+  --ring: #334155;    /* slate-700 */
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+  color: var(--fg);
+  background: radial-gradient(1200px 600px at 10% 0%, rgba(56,189,248,0.15), transparent 40%),
+              radial-gradient(900px 900px at 90% 10%, rgba(168,85,247,0.12), transparent 35%),
+              var(--bg);
+}
+
+.container { max-width: 960px; margin: 0 auto; padding: 1rem; }
+
+.site-header { padding: 2rem 0 1rem; }
+#site-title { margin: 0; font-size: 2rem; }
+#site-subtitle { margin: .25rem 0 0; color: var(--muted); }
+#site-location { margin: .25rem 0 0; color: var(--muted); font-size: 0.8rem; }
+
+.tabs {
+  display: flex; gap: .5rem; border-bottom: 1px solid var(--ring); margin-top: 1rem;
+}
+.tab {
+  background: transparent; color: var(--fg);
+  border: 1px solid var(--ring); border-bottom: none;
+  padding: .5rem .9rem; border-top-left-radius: .5rem; border-top-right-radius: .5rem;
+  cursor: pointer; transition: transform .06s ease;
+}
+.tab:hover { transform: translateY(-1px); }
+.tab.active { background: #0b1224; border-color: var(--accent); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  gap: 1rem; margin-top: 1rem;
+}
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.25));
+  border: 1px solid var(--ring);
+  border-radius: 14px; padding: 1rem;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+h2, h3 { margin-top: 0; }
+ul { list-style-type: none; margin: 0rem 0 0; padding-left: 0rem; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.posts { display: grid; gap: .75rem; }
+.post {
+  padding: .75rem; border: 1px solid var(--ring); border-radius: 12px;
+}
+.post h4 { margin: 0 0 .25rem; }
+.post .meta { color: var(--muted); font-size: .9rem; }
+
+.site-footer { color: var(--muted); padding: 2rem 0; text-align: center; }
