@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+  body { background: white !important; color: black !important; }
+  header, nav { display: none !important; }
+  .prose { font-size: 11pt; }
+}
+
+/* CV atoms */
+.cv-chip {
+  @apply text-xs px-2 py-1 rounded-md border border-gray-200 bg-gray-50;
+}
+.cv-bullets {
+  list-style: none;
+  padding-left: 0;
+}
+.cv-bullets li {
+  position: relative;
+  padding-left: 1rem;
+  margin: 0.2rem 0;
+  font-size: 0.95rem;
+  line-height: 1.35rem;
+}
+.cv-bullets li::before {
+  content: "•";
+  position: absolute;
+  left: 0.15rem;
+  color: #9ca3af; /* gray-400 */
+}
+
+.cv-sheet { max-width: 980px; }
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body { background: white !important; }
+  /* Don't hide the CV header; only hide the site chrome if they exist */
+  nav, header.site, footer.site { display: none !important; }
+  .cv-sheet { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; padding: 0 !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+

@@ -1,0 +1,97 @@
+import { useEffect, useState } from 'react';
+import CrudTable from '../../components/CrudTable';
+import Banner from '../../components/Banner';
+import UploadButton from '../../components/UploadButton';
+import { ApiError, createPost, deletePost, getPosts, updatePost, uploadFile } from '../../api';
+import { useNavigate } from 'react-router-dom';
+
+export default function PostsEditor(){
+  const nav = useNavigate();
+  const [rows,setRows] = useState<any[]>([]);
+  const [err,setErr] = useState<string>('');
+  const [draft,setDraft] = useState<any>({ title:'', slug:'', excerpt:'', body_md:'', cover_url:'' });
+
+  const load = async ()=> {
+    try {setRows(await getPosts()); setErr(''); }
+    catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('You are not logged in. Please sign in to manage blog posts.');
+      } else {
+        setErr('Failed to load blog posts.');
+      }
+    }
+  };
+
+  useEffect(()=>{ load(); },[]);
+
+  async function saveNew(){
+    try { await createPost(draft); setDraft({ title:'', slug:'', excerpt:'', body_md:'', cover_url:'' }); setErr(''); load(); }
+    catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('Not authenticated. Redirecting to login…'); setTimeout(()=>nav('/admin/login'), 800);
+      } else setErr('Save failed.');
+    }
+  }
+  
+  async function onEdit(row:any){
+    try {
+      const title = prompt('Title', row.title) || row.title;
+      const excerpt = prompt('Excerpt', row.excerpt||'') || row.excerpt;
+      await updatePost(row.id, { ...row, title, excerpt });
+      setErr(''); load();
+    } catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('Not authenticated. Redirecting to login…'); setTimeout(()=>nav('/admin/login'), 800);
+      } else setErr('Update failed.');
+    }
+  }
+
+  async function onDelete(row:any){
+    try { if(confirm('Delete?')) { await deletePost(row.id); setErr(''); load(); } }
+    catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('Not authenticated. Redirecting to login…'); setTimeout(()=>nav('/admin/login'), 800);
+      } else setErr('Delete failed.');
+    }
+  }
+
+  async function onCover(e:React.ChangeEvent<HTMLInputElement>){ const f=e.target.files?.[0]; if(!f) return; const { url } = await uploadFile(f); setDraft((d:any)=>({ ...d, cover_url:url })); }
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-xl font-semibold">Blog Posts</h1>
+      <div className="grid md:grid-cols-2 gap-2">
+        <input className="border p-2 rounded-xl" placeholder="Title" value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})} />
+        <input className="border p-2 rounded-xl" placeholder="Slug" value={draft.slug} onChange={e=>setDraft({...draft,slug:e.target.value})} />
+        <input className="border p-2 rounded-xl md:col-span-2" placeholder="Excerpt" value={draft.excerpt} onChange={e=>setDraft({...draft,excerpt:e.target.value})} />
+        <textarea className="border p-2 rounded-xl md:col-span-2 h-40 font-mono" placeholder="Markdown body" value={draft.body_md} onChange={e=>setDraft({...draft,body_md:e.target.value})} />
+        <div className="flex items-center gap-2 md:col-span-2">
+          <UploadButton
+            label="Upload cover"
+            onUploaded={(url)=> setDraft((d:any)=>({ ...d, cover_url: url }))}
+          />
+          {draft.cover_url && <img src={draft.cover_url} className="h-12 rounded-xl" />}
+          <UploadButton
+            label="Upload & insert into body"
+            onUploaded={(url, f)=> setDraft((d:any)=>({
+              ...d,
+              body_md: `${d.body_md || ''}\n\n![${f.name}](${url})\n`
+            }))}
+          />
+        </div>
+      </div>
+      <button className="px-4 py-2 rounded-xl border" onClick={saveNew}>Add Post</button>
+      <CrudTable
+        rows={rows}
+        columns={[
+          { key:'title', label:'Title' },
+          { key:'slug', label:'Slug' },
+          { key:'created_at', label:'Date' },
+        ]}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+    </div>
+  );
+}
+

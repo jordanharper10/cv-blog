@@ -1,0 +1,81 @@
+import { useEffect, useState } from 'react';
+import CrudTable from '../../components/CrudTable';
+import Banner from '../../components/Banner';
+import { ApiError, createTimeline, deleteTimeline, getTimeline, updateTimeline } from '../../api';
+import { useNavigate } from 'react-router-dom';
+
+export default function TimelineEditor(){
+  const nav = useNavigate();
+  const [rows,setRows] = useState<any[]>([]);
+  const [err,setErr] = useState<string>('');
+  const [draft,setDraft] = useState<any>({ date:'', label:'', description:'', icon:'' });
+
+  const load = async ()=> {
+    try { setRows(await getTimeline()); setErr(''); }
+    catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('You are not logged in. Please sign in to manage the timeline.');
+      } else {
+        setErr('Failed to load timeline.');
+      }
+    }
+  };
+  
+  useEffect(()=>{ load(); },[]);
+
+  async function saveNew(){
+    try { await createTimeline(draft); setDraft({ date:'', label:'', description:'', icon:'' }); setErr(''); load(); }
+    catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('Not authenticated. Redirecting to login…'); setTimeout(()=>nav('/admin/login'), 800);
+      } else setErr('Save failed.');
+    }
+  }
+
+  async function onEdit(row:any){
+    try {
+      const date = prompt('Date (YYYY-MM-DD)', row.date) || row.date;
+      const label = prompt('Label', row.label) || row.label;
+      const description = prompt('Description', row.description||'') || row.description;
+      await updateTimeline(row.id, { date, label, description, icon: row.icon||'' });
+      setErr(''); load();
+    } catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('Not authenticated. Redirecting to login…'); setTimeout(()=>nav('/admin/login'), 800);
+      } else setErr('Update failed.');
+    }
+  }
+
+  async function onDelete(row:any){
+    try { if(confirm('Delete?')) { await deleteTimeline(row.id); setErr(''); load(); } }
+    catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('Not authenticated. Redirecting to login…'); setTimeout(()=>nav('/admin/login'), 800);
+      } else setErr('Delete failed.');
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-xl font-semibold">Timeline</h1>
+      <div className="grid md:grid-cols-4 gap-2">
+        <input className="border p-2 rounded-xl" placeholder="Date YYYY-MM-DD" value={draft.date} onChange={e=>setDraft({...draft,date:e.target.value})} />
+        <input className="border p-2 rounded-xl" placeholder="Label" value={draft.label} onChange={e=>setDraft({...draft,label:e.target.value})} />
+        <input className="border p-2 rounded-xl" placeholder="Description" value={draft.description} onChange={e=>setDraft({...draft,description:e.target.value})} />
+        <input className="border p-2 rounded-xl" placeholder="Icon (optional)" value={draft.icon} onChange={e=>setDraft({...draft,icon:e.target.value})} />
+      </div>
+      <button className="px-4 py-2 rounded-xl border" onClick={saveNew}>Add Timeline Entry</button>
+      <CrudTable
+        rows={rows}
+        columns={[
+          { key:'date', label:'Date' },
+          { key:'label', label:'Label' },
+          { key:'description', label:'Description' },
+        ]}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+    </div>
+  );
+}
+

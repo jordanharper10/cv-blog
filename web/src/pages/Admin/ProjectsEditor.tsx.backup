@@ -1,0 +1,89 @@
+import { useEffect, useState } from 'react';
+import CrudTable from '../../components/CrudTable';
+import Banner from '../../components/Banner';
+import UploadButton from '../../components/UploadButton';
+import { ApiError, createProject, deleteProject, getProjects, updateProject } from '../../api';
+import { useNavigate } from 'react-router-dom';
+
+export default function ProjectsEditor(){
+  const nav = useNavigate();
+  const [rows,setRows] = useState<any[]>([]);
+  const [err,setErr] = useState<string>('');
+  const [draft,setDraft] = useState<any>({ title:'', summary:'', tags:'', url:'', repo_url:'', cover_url:'' });
+
+  const load = async () => {
+    try { setRows(await getProjects()); setErr(''); }
+    catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('You are not logged in. Please sign in to manage projects.');
+      } else {
+        setErr('Failed to load projects.');
+      }
+    }
+  };
+  
+  useEffect(()=>{ load(); },[]);
+
+  async function saveNew(){
+    try { await createProject(draft); setDraft({ title:'', summary:'', tags:'', url:'', repo_url:'', cover_url:'' }); setErr(''); load(); }
+    catch(e:any){
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('Not authenticated. Redirecting to login…'); setTimeout(()=>nav('/admin/login'), 800);
+      } else setErr('Save failed.');
+    }
+  }
+
+  async function onEdit(row:any){
+    try {
+      const title = prompt('Title', row.title) || row.title;
+      const summary = prompt('Summary', row.summary||'') || row.summary;
+      await updateProject(row.id, { ...row, title, summary });
+      setErr(''); load();
+    } catch(e:any) {
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('Not authenticated. Redirecting to login…'); setTimeout(()=>nav('/admin/login'), 800);
+      } else setErr('Update failed.');
+    }
+  }
+
+  async function onDelete(row:any){
+    try { if(confirm('Delete?')) { await deleteProject(row.id); setErr(''); load(); } }
+    catch(e:any) {
+      if (e instanceof ApiError && e.status === 401) {
+        setErr('Not authenticated. Redirecting to login…'); setTimeout(()=>nav('/admin/login'), 800);
+      } else setErr('Delete failed.');
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-xl font-semibold">Projects</h1>
+      <div className="grid md:grid-cols-3 gap-2">
+        <input className="border p-2 rounded-xl" placeholder="Title" value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})} />
+        <input className="border p-2 rounded-xl" placeholder="Summary" value={draft.summary} onChange={e=>setDraft({...draft,summary:e.target.value})} />
+        <input className="border p-2 rounded-xl" placeholder="Tags" value={draft.tags} onChange={e=>setDraft({...draft,tags:e.target.value})} />
+        <input className="border p-2 rounded-xl" placeholder="Live URL" value={draft.url} onChange={e=>setDraft({...draft,url:e.target.value})} />
+        <input className="border p-2 rounded-xl" placeholder="Repo URL" value={draft.repo_url} onChange={e=>setDraft({...draft,repo_url:e.target.value})} />
+        <input className="border p-2 rounded-xl" placeholder="Cover URL" value={draft.cover_url} onChange={e=>setDraft({...draft,cover_url:e.target.value})} />
+        <UploadButton
+          label="Upload cover"
+          onUploaded={(url)=> setDraft((d:any)=>({ ...d, cover_url: url }))}
+        />
+        {draft.cover_url && <img src={draft.cover_url} className="h-10 rounded-lg" />}
+      </div>
+      <button className="px-4 py-2 rounded-xl border" onClick={saveNew}>Add Project</button>
+      <CrudTable
+        rows={rows}
+        columns={[
+          { key:'title', label:'Title' },
+          { key:'summary', label:'Summary' },
+          { key:'url', label:'Live' },
+          { key:'repo_url', label:'GitHub' },
+        ]}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+    </div>
+  );
+}
+
