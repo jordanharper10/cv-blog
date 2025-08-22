@@ -113,6 +113,7 @@ Run the backend in dev mode:
 `cd api && npm run dev`
 
 ## Project Structure
+```
 cv-blog/
 ├── api/           # Express backend (port 8443)
 │   ├── server.js
@@ -125,4 +126,5 @@ cv-blog/
 ├── data/          # SQLite database files
 ├── uploads/       # Uploaded files
 └── README.md
+```
 
