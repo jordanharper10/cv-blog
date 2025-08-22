@@ -41,36 +41,50 @@ export default function Home() {
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {projects.map(p => (
-            <Link to="/projects" key={p.id} className="border rounded-2xl p-4 hover:shadow">
-            <h3 className="font-medium">{p.title}</h3>
-            <p className="text-sm text-gray-600 line-clamp-3">{p.summary}</p>
-          </Link>
-        ))}
-      </div>
-    </section>
+            <Link to="/projects" key={p.id} className="border rounded-2xl overflow-hidden hover:shadow transition">
+              {/* Cover */}
+              {p.cover_url && (
+                <div className="aspect-[16/9] bg-gray-100">
+                  <img
+                    src={p.cover_url}
+                    alt={p.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              {/* Body */}
+              <div className="p-4">
+                <h3 className="font-medium">{p.title}</h3>
+                <p className="text-sm text-gray-600 line-clamp-3">{p.summary}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-    <section>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xl font-semibold">Latest Blog Posts</h2>
-        <Link to="/blog" className="text-sm underline">See all</Link>
-      </div>
-      <div className="space-y-3">
-        {posts.map(p => (
-          <Link to={`/blog/${p.slug}`} key={p.id} className="block border rounded-2xl p-4 hover:shadow">
-            <h3 className="font-medium">{p.title}</h3>
-            <p className="text-sm text-gray-600">{p.excerpt}</p>
-          </Link>
-        ))}
-      </div>
-    </section>
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xl font-semibold">Latest Blog Posts</h2>
+          <Link to="/blog" className="text-sm underline">See all</Link>
+        </div>
+        <div className="space-y-3">
+          {posts.map(p => (
+            <Link to={`/blog/${p.slug}`} key={p.id} className="block border rounded-2xl p-4 hover:shadow">
+              <h3 className="font-medium">{p.title}</h3>
+              <p className="text-sm text-gray-600">{p.excerpt}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-    <section>
-      <h2 className="text-xl font-semibold mb-6">Timeline</h2>
-      <AlternatingTimeline items={timeline} newestFirst={true} />
-    </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-6">Timeline</h2>
+        <AlternatingTimeline items={timeline} newestFirst={true} />
+      </section>
 
-    <section>
-      <h2 className="text-xl font-semibold mb-3">Contact</h2>
+      <section>
+        <h2 className="text-xl font-semibold mb-3">Contact</h2>
         {contacts.length === 0 ? (
           <p className="text-sm text-gray-600">No contacts yet.</p>
         ) : (
@@ -87,3 +101,4 @@ export default function Home() {
     </div>
   );
 }
+

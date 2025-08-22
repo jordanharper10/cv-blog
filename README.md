@@ -3,11 +3,9 @@
 A personal **CV and Blog web application** built for self-hosting on a Raspberry Pi.  
 It combines a clean CV/Resume layout with a blog, portfolio, and life timeline — all editable through a web admin panel.
 
-Inspired by [diogotc.com](https://diogotc.com).
-
 ---
 
-## ✨ Features
+## Features
 
 - **Public site**
   - Profile header (name, tagline, location, social links, certs)
@@ -32,7 +30,7 @@ Inspired by [diogotc.com](https://diogotc.com).
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ### 1. Clone the Repo
 ```
@@ -98,8 +96,8 @@ sudo systemctl start cv-blog-api
 Copy the Nginx configuration and modify to your desired settings:
 ```
 cd ../web
-sudo cp cv-blog.domain.example /etc/nginx/sites-available/YOUR_SITE_NAME
-sudo ln -s /etc/nginx/sites-available/YOUR_SITE_NAME /etc/nginx/sites-enabled/YOUR_SITE_NAME
+sudo cp nginx.cv-blog.example /etc/nginx/sites-available/cv-blog
+sudo ln -s /etc/nginx/sites-available/cv-blog /etc/nginx/sites-enabled/cv-blog
 sudo systemctl reload nginx
 ```
 

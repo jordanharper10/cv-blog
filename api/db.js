@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 
 const DB_PATH = process.env.DB_PATH || path.resolve(__dirname, '../data/app.db');
 
+// get database file from DB_PATH, create if not exists
 export function getDb() {
   const dir = path.dirname(DB_PATH);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -17,6 +18,7 @@ export function getDb() {
   return db;
 }
 
+// Initialise the database based on the schema file
 export function init() {
   const db = getDb();
   const schemaPath = path.resolve(__dirname, 'schema.sql');

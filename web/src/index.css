@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 @media print {
   body { background: white !important; color: black !important; }
   header, nav { display: none !important; }

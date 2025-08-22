@@ -29,7 +29,7 @@ app.use(morgan('tiny'));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.set('trust proxy', 1);
 const PROD = process.env.NODE_ENV === 'production';
