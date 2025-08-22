@@ -89,7 +89,7 @@ Production server setup:
 Modify the systemd file with your required settings.
 
 Enable and start the service:
-````
+```
 sudo systemctl enable cv-blog-api
 sudo systemctl start cv-blog-api
 ```
