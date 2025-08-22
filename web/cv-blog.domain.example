@@ -1,0 +1,32 @@
+server {
+    listen 443 ssl http2;
+    server_name cvblog.example.com;
+    ssl_certificate /path/to/fullchain.pem;
+    ssl_certificate_key /path/to/privkey.pem;
+    root /opt/webapps/cv-blog/web/dist;
+    index index.html;
+
+    client_max_body_size 10M;
+
+    # Static uploads (served directly)
+    location /uploads/ {
+        alias /opt/webapps/cv-blog/uploads/;
+        access_log off;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    # API proxy
+    location /api/ {
+        proxy_pass http://127.0.0.1:8443/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # History mode routing for SPA
+    location / {
+        try_files $uri /index.html;
+    }
+}

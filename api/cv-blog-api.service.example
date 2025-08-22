@@ -1,0 +1,16 @@
+[Unit]
+Description=CV Blog API
+After=network.target
+
+[Service]
+Type=simple
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/webapps/cv-blog/api/.env
+WorkingDirectory=/opt/webapps/cv-blog/api
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
